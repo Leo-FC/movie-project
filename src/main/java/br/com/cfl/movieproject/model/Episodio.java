@@ -1,15 +1,29 @@
 package br.com.cfl.movieproject.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 
+@Entity
+@Table(name = "episodios")
 public class Episodio {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private Integer temporada;
     private String titulo;
     private Integer numeroEpisodio;
     private Double avaliacao;
     private LocalDate dataLancamento;
 
+    @ManyToOne
+    private Serie serie;
+
+    public Episodio(){}
     public Episodio(Integer temporada, DadosEpisodio dadosEpisodio){
         this.temporada = temporada;
         this.titulo = dadosEpisodio.titulo();
@@ -68,11 +82,39 @@ public class Episodio {
         this.dataLancamento = dataLancamento;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Serie getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.serie = serie;
+    }
+
     @Override
     public String toString(){
         return
                 "S" + temporada + "E" + numeroEpisodio + " - " + titulo
                 + " | Avaliacao: " + avaliacao
                 + " | Data de Lancamento: " + dataLancamento;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Episodio)) return false;
+        Episodio e = (Episodio) o;
+        return temporada == e.temporada &&
+                numeroEpisodio == e.numeroEpisodio &&
+                Double.compare(e.avaliacao, avaliacao) == 0 &&
+                Objects.equals(titulo, e.titulo) &&
+                Objects.equals(dataLancamento, e.dataLancamento);
     }
 }

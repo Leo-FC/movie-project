@@ -1,12 +1,27 @@
 package br.com.cfl.movieproject.model;
 
 import br.com.cfl.movieproject.service.traducao.TradutorMyMemory;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.OptionalDouble;
 
+@Entity
+@Table(name = "series")
 public class Serie {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true)
     private String titulo;
+
+    @Enumerated(EnumType.STRING)
     private Categoria genero;
+
     private String elenco;
     private Integer qtdTemporadas;
     private Double avaliacao;
@@ -14,6 +29,10 @@ public class Serie {
     private String sinopse;
     private String dataDeLancamento;
 
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Episodio> episodios = new ArrayList<>();
+
+    public Serie(){}
 
     public Serie(DadosSerie dadosSerie){
         this.titulo = dadosSerie.titulo();
@@ -24,6 +43,14 @@ public class Serie {
         this.poster = dadosSerie.poster();
         this.dataDeLancamento = dadosSerie.dataDeLancamento();
         this.sinopse = TradutorMyMemory.obterTraducao(dadosSerie.sinopse()).trim();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitulo() {
@@ -90,6 +117,15 @@ public class Serie {
         this.dataDeLancamento = dataDeLancamento;
     }
 
+    public List<Episodio> getEpisodios() {
+        return episodios;
+    }
+
+    public void setEpisodios(List<Episodio> episodios) {
+        episodios.forEach(e -> e.setSerie(this));
+        this.episodios = episodios;
+    }
+
     @Override
     public String toString() {
 
@@ -99,5 +135,14 @@ public class Serie {
                 +"\nGenero: " + genero + " | Elenco: " + elenco
                 +"\nTemporadas: " + qtdTemporadas + " | Avaliacao: " + avaliacao + " | Data de lancamento: " + dataDeLancamento
                 +"\nSinopse: " + sinopse;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Serie)) return false;
+        Serie e = (Serie) o;
+        return id == e.id &&
+               Objects.equals(titulo, e.titulo);
     }
 }
